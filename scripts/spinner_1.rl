@@ -33,23 +33,34 @@ dec args = args()
 // --- checking if -h is provided
 //     then prints usage and exits
 if args.arr_contains("-h")? {
-  print("usage: spinner [options]\n")
+  print("\e[1mspinner\e[0m - a terminal spinner for long-running tasks\n")
   print("\n")
-  print("options:\n")
-  print("  -s <style>   animation style (dots | wave | pulse | fill | bounce | heavy)\n")
-  print("  -r           reverse the animation\n")
-  print("  -n <count>   run for N cycles, then stop\n")
-  print("  -m <message> text to display next to the spinner\n")
-  print("  -M <message> text to display after spinner finishes\n")
-  print("  -C [colors]  color mode (see below)\n")
-  print("  -h           show this help message\n")
+  print("displays an animated loading indicator until manually stopped\n")
+  print("or until a cycle count is reached.\n")
   print("\n")
-  print("color modes:\n")
-  print("  -C              random color per frame\n")
-  print("  -C <color>      single color for frames\n")
-  print("  -C <f> <m>      color for frames and messages\n")
+  print("\e[36musage:\e[0m spinner [options]\n")
   print("\n")
-  print("colors: black red green yellow blue magenta cyan white\n")
+  print("\e[36moptions:\e[0m\n")
+  print("  \e[33m-s\e[0m \e[1m<style>\e[0m   animation style (dots | wave | pulse | fill | bounce | heavy)\n")
+  print("  \e[33m-r\e[0m           reverse the animation\n")
+  print("  \e[33m-n\e[0m \e[1m<count>\e[0m   run for N cycles, then stop\n")
+  print("  \e[33m-m\e[0m \e[1m<text>\e[0m    text to display next to the spinner\n")
+  print("  \e[33m-M\e[0m \e[1m<text>\e[0m    text to display after spinner finishes\n")
+  print("  \e[33m-C\e[0m \e[1m[colors]\e[0m color mode (see below)\n")
+  print("  \e[33m-h\e[0m           show this help message\n")
+  print("\n")
+  print("\e[36mcolor modes:\e[0m\n")
+  print("  \e[33m-C\e[0m              random color per frame\n")
+  print("  \e[33m-C\e[0m \e[1m<color>\e[0m      single color for frames\n")
+  print("  \e[33m-C\e[0m \e[1m<f> <m>\e[0m      color for frames and messages\n")
+  print("\n")
+  print("\e[36mcolors:\e[0m black red green yellow blue magenta cyan white\n")
+  print("\n")
+  print("\e[36mexamples:\e[0m\n")
+  print("  spinner -s wave -m \"Loading...\"\n")
+  print("  spinner -s pulse -n 50 -M \"Done!\"\n")
+  print("  spinner -C red -m \"Working...\"\n")
+  print("  spinner -C cyan magenta -m \"Building...\" -M \"Build complete\"\n")
   exit(0)
 }
 
@@ -74,16 +85,16 @@ if args.arr_contains("-s")? {
         "bounce" => { style = 4 }
         "heavy" => { style = 5 }
         _ => {
-          eprintln(format("error: '{}' is not a valid style\n  valid styles: dots | wave | pulse | fill | bounce | heavy", args[target_index + 1]))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid style\n  valid styles: dots | wave | pulse | fill | bounce | heavy", args[target_index + 1]))
           exit(4)
         }
       }
     } else {
-      eprintln("error: '-s' requires a style argument\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
+      eprintln("\e[31merror:\e[0m '-s' requires a style argument\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
       exit(3)
     }
   } else {
-    eprintln("error: missing style after '-s'\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
+    eprintln("\e[31merror:\e[0m missing style after '-s'\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
     exit(3)
   }
 }
@@ -96,23 +107,23 @@ if args.arr_contains("-n")? {
     if target_index + 1 < args.len()? {
         dec result[int] c = args[target_index + 1].to_int()
         if c.is_err() {
-          eprintln(format("error: '-n' expected an integer, got '{}'", args[target_index + 1]))
+          eprintln(format("\e[31merror:\e[0m '-n' expected an integer, got '{}'", args[target_index + 1]))
           exit(4)
         } else {
           dec int c = c.result_unwrap()
           if c > 0 {
             count = c
           } else {
-            eprintln(format("error: '-n' must be a positive integer, got {}", c))
+            eprintln(format("\e[31merror:\e[0m '-n' must be a positive integer, got {}", c))
             exit(4)
           }
         }
     } else {
-      eprintln("error: '-n' requires a count argument after it")
+      eprintln("\e[31merror:\e[0m '-n' requires a count argument after it")
       exit(3)
     }
   } else {
-    eprintln("error: missing count after '-n'")
+    eprintln("\e[31merror:\e[0m missing count after '-n'")
     exit(3)
   }
 }
@@ -126,11 +137,11 @@ if args.arr_contains("-m")? {
     if target_index + 1 < args.len()? {
       message = args[target_index + 1]
     } else {
-      eprintln("error: '-m' requires a message argument after it")
+      eprintln("\e[31merror:\e[0m '-m' requires a message argument after it")
       exit(3)
     }
   } else {
-    eprintln("error: missing message after '-m'")
+    eprintln("\e[31merror:\e[0m missing message after '-m'")
     exit(3)
   }
 }
@@ -144,11 +155,11 @@ if args.arr_contains("-M")? {
     if target_index + 1 < args.len()? {
       finish_message = args[target_index + 1]
     } else {
-      eprintln("error: '-M' requires a finish message argument after it")
+      eprintln("\e[31merror:\e[0m '-M' requires a finish message argument after it")
       exit(3)
     }
   } else {
-    eprintln("error: missing finish message after '-M'")
+    eprintln("\e[31merror:\e[0m missing finish message after '-M'")
     exit(3)
   }
 }
@@ -168,7 +179,7 @@ if args.arr_contains("-C")? {
     // next arg is a flag → random mode
     if first.starts_with("-") {
       color_random = true
-    } else if target_index + 2 >= args.len()? {
+    } else if target_index + 2 >= args.len()? or args[target_index + 2].starts_with("-") {
       // only 1 arg after -C → frame color only
       match first {
         "black" => { frame_color = "30" }
@@ -180,7 +191,7 @@ if args.arr_contains("-C")? {
         "cyan" => { frame_color = "36" }
         "white" => { frame_color = "37" }
         _ => {
-          eprintln(format("error: '{}' is not a valid color\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
           exit(4)
         }
       }
@@ -197,7 +208,7 @@ if args.arr_contains("-C")? {
         "cyan" => { frame_color = "36" }
         "white" => { frame_color = "37" }
         _ => {
-          eprintln(format("error: '{}' is not a valid color for frames\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for frames\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
           exit(4)
         }
       }
@@ -211,7 +222,7 @@ if args.arr_contains("-C")? {
         "cyan" => { msg_color = "36" }
         "white" => { msg_color = "37" }
         _ => {
-          eprintln(format("error: '{}' is not a valid color for messages\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", second))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for messages\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", second))
           exit(4)
         }
       }
