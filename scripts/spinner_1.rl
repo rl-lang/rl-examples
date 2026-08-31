@@ -53,14 +53,16 @@ if args.arr_contains("-h")? {
   print("  \e[33m-C\e[0m              random color per frame\n")
   print("  \e[33m-C\e[0m \e[1m<color>\e[0m      single color for frames\n")
   print("  \e[33m-C\e[0m \e[1m<f> <m>\e[0m      color for frames and messages\n")
+  print("  \e[33m-C\e[0m \e[1mrandom <m>\e[0m  random frames with colored messages\n")
   print("\n")
-  print("\e[36mcolors:\e[0m black red green yellow blue magenta cyan white\n")
+  print("\e[36mcolors:\e[0m random | black red green yellow blue magenta cyan white\n")
   print("\n")
   print("\e[36mexamples:\e[0m\n")
   print("  spinner -s wave -m \"Loading...\"\n")
   print("  spinner -s pulse -n 50 -M \"Done!\"\n")
   print("  spinner -C red -m \"Working...\"\n")
   print("  spinner -C cyan magenta -m \"Building...\" -M \"Build complete\"\n")
+  print("  spinner -C random cyan -m \"Compiling...\"\n")
   exit(0)
 }
 
@@ -182,6 +184,7 @@ if args.arr_contains("-C")? {
     } else if target_index + 2 >= args.len()? or args[target_index + 2].starts_with("-") {
       // only 1 arg after -C → frame color only
       match first {
+        "random" => { color_random = true }
         "black" => { frame_color = "30" }
         "red" => { frame_color = "31" }
         "green" => { frame_color = "32" }
@@ -191,7 +194,7 @@ if args.arr_contains("-C")? {
         "cyan" => { frame_color = "36" }
         "white" => { frame_color = "37" }
         _ => {
-          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color\n  valid colors: random | black | red | green | yellow | blue | magenta | cyan | white", first))
           exit(4)
         }
       }
@@ -199,6 +202,7 @@ if args.arr_contains("-C")? {
       // 2 args after -C → frame + message color
       dec string second = args[target_index + 2]
       match first {
+        "random" => { color_random = true }
         "black" => { frame_color = "30" }
         "red" => { frame_color = "31" }
         "green" => { frame_color = "32" }
@@ -208,7 +212,7 @@ if args.arr_contains("-C")? {
         "cyan" => { frame_color = "36" }
         "white" => { frame_color = "37" }
         _ => {
-          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for frames\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for frames\n  valid colors: random | black | red | green | yellow | blue | magenta | cyan | white", first))
           exit(4)
         }
       }
