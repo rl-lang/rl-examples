@@ -1,11 +1,12 @@
 get term_flush from std::term
 get sleep from std::process
 get print, eprintln from std::io
-get format from std::str
+get format, starts_with from std::str
 get args, exit from std::process
 get arr_reverse, arr_contains, arr_last, arr_index_of, len from std::array
 get to_int from std::types
 get result_unwrap, is_err from std::res
+get mod from std::math
 
 // --- global variables
 dec bool reversed = false
@@ -14,6 +15,10 @@ dec arr[string] frames = []
 dec int count = -1
 dec string message = ""
 dec string finish_message = ""
+dec bool color_random = false
+dec string frame_color = ""
+dec string msg_color = ""
+dec arr[string] rainbow = ["31", "32", "33", "34", "35", "36"]
 
 // --- basic set of animations
 dec dots = ["⠋", "⠙", "⠸", "⢰", "⣠", "⣄", "⡆", "⠇"]
@@ -148,6 +153,72 @@ if args.arr_contains("-M")? {
   }
 }
 
+// --- checking if the option -C
+//     is used correctly or not
+//     0 args: random color per frame
+//     1 arg:  color for frames only
+//     2 args: color for frames and messages
+if args.arr_contains("-C")? {
+  dec target_index = args.arr_index_of("-C")?
+  // -C is last arg → random mode
+  if args[target_index] == args.arr_last()? {
+    color_random = true
+  } else {
+    dec string first = args[target_index + 1]
+    // next arg is a flag → random mode
+    if first.starts_with("-") {
+      color_random = true
+    } else if target_index + 2 >= args.len()? {
+      // only 1 arg after -C → frame color only
+      match first {
+        "black" => { frame_color = "30" }
+        "red" => { frame_color = "31" }
+        "green" => { frame_color = "32" }
+        "yellow" => { frame_color = "33" }
+        "blue" => { frame_color = "34" }
+        "magenta" => { frame_color = "35" }
+        "cyan" => { frame_color = "36" }
+        "white" => { frame_color = "37" }
+        _ => {
+          eprintln(format("error: '{}' is not a valid color\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          exit(4)
+        }
+      }
+    } else {
+      // 2 args after -C → frame + message color
+      dec string second = args[target_index + 2]
+      match first {
+        "black" => { frame_color = "30" }
+        "red" => { frame_color = "31" }
+        "green" => { frame_color = "32" }
+        "yellow" => { frame_color = "33" }
+        "blue" => { frame_color = "34" }
+        "magenta" => { frame_color = "35" }
+        "cyan" => { frame_color = "36" }
+        "white" => { frame_color = "37" }
+        _ => {
+          eprintln(format("error: '{}' is not a valid color for frames\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", first))
+          exit(4)
+        }
+      }
+      match second {
+        "black" => { msg_color = "30" }
+        "red" => { msg_color = "31" }
+        "green" => { msg_color = "32" }
+        "yellow" => { msg_color = "33" }
+        "blue" => { msg_color = "34" }
+        "magenta" => { msg_color = "35" }
+        "cyan" => { msg_color = "36" }
+        "white" => { msg_color = "37" }
+        _ => {
+          eprintln(format("error: '{}' is not a valid color for messages\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", second))
+          exit(4)
+        }
+      }
+    }
+  }
+}
+
 match style {
   0 => { frames = dots }
   1 => { frames = wave }
@@ -166,20 +237,61 @@ if reversed {
 //     given a count (-n)
 if count != -1 {
   print("\e[?25l")
+  dec int ci = 0
   while count > 0 {
     for frame in frames {
-      print(format("\r{} {}", frame, message))
+      dec string fc = frame_color
+      if color_random {
+        fc = rainbow[mod(ci, rainbow.len()?)?]
+        ci += 1
+      }
+      if fc != "" {
+        print(format("\r\e[{}m{}\e[0m", fc, frame))
+      } else {
+        print(format("\r{}", frame))
+      }
+      if message != "" {
+        if msg_color != "" {
+          print(format(" \e[{}m{}\e[0m", msg_color, message))
+        } else {
+          print(format(" {}", message))
+        }
+      }
       term_flush()?
       sleep(100)
     }
     count -= 1
   }
   print("\e[?25h")
-  print(format("\e[2K\r{}\n", finish_message))
+  print("\e[2K\r")
+  if msg_color != "" and finish_message != "" {
+    print(format("\e[{}m{}\e[0m\n", msg_color, finish_message))
+  } else if finish_message != "" {
+    print(format("{}\n", finish_message))
+  } else {
+    print("\n")
+  }
 } else {
+  dec int ci = 0
   while true {
     for frame in frames {
-      print(format("\r{} {}", frame, message))
+      dec string fc = frame_color
+      if color_random {
+        fc = rainbow[mod(ci, rainbow.len()?)?]
+        ci += 1
+      }
+      if fc != "" {
+        print(format("\r\e[{}m{}\e[0m", fc, frame))
+      } else {
+        print(format("\r{}", frame))
+      }
+      if message != "" {
+        if msg_color != "" {
+          print(format(" \e[{}m{}\e[0m", msg_color, message))
+        } else {
+          print(format(" {}", message))
+        }
+      }
       term_flush()?
       sleep(100)
     }
