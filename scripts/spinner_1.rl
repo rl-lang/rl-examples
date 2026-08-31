@@ -25,6 +25,29 @@ dec heavy = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
 
 dec args = args()
 
+// --- checking if -h is provided
+//     then prints usage and exits
+if args.arr_contains("-h")? {
+  print("usage: spinner [options]\n")
+  print("\n")
+  print("options:\n")
+  print("  -s <style>   animation style (dots | wave | pulse | fill | bounce | heavy)\n")
+  print("  -r           reverse the animation\n")
+  print("  -n <count>   run for N cycles, then stop\n")
+  print("  -m <message> text to display next to the spinner\n")
+  print("  -M <message> text to display after spinner finishes\n")
+  print("  -C [colors]  color mode (see below)\n")
+  print("  -h           show this help message\n")
+  print("\n")
+  print("color modes:\n")
+  print("  -C              random color per frame\n")
+  print("  -C <color>      single color for frames\n")
+  print("  -C <f> <m>      color for frames and messages\n")
+  print("\n")
+  print("colors: black red green yellow blue magenta cyan white\n")
+  exit(0)
+}
+
 // --- checking weather reverse
 //     option is provided or not
 if args.arr_contains("-r")? {
