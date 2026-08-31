@@ -47,16 +47,16 @@ if args.arr_contains("-s")? {
         "heavy" => { style = 5 }
         _ => {
           eprintln(format("error: '{}' is not a valid style\n  valid styles: dots | wave | pulse | fill | bounce | heavy", args[target_index + 1]))
-          exit(3)
+          exit(4)
         }
       }
     } else {
       eprintln("error: '-s' requires a style argument\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
-      exit(2)
+      exit(3)
     }
   } else {
     eprintln("error: missing style after '-s'\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
-    exit(2)
+    exit(3)
   }
 }
 
@@ -69,23 +69,23 @@ if args.arr_contains("-n")? {
         dec result[int] c = args[target_index + 1].to_int()
         if c.is_err() {
           eprintln(format("error: '-n' expected an integer, got '{}'", args[target_index + 1]))
-          exit(3)
+          exit(4)
         } else {
           dec int c = c.result_unwrap()
           if c > 0 {
             count = c
           } else {
             eprintln(format("error: '-n' must be a positive integer, got {}", c))
-            exit(3)
+            exit(4)
           }
         }
     } else {
       eprintln("error: '-n' requires a count argument after it")
-      exit(2)
+      exit(3)
     }
   } else {
     eprintln("error: missing count after '-n'")
-    exit(2)
+    exit(3)
   }
 }
 
@@ -99,11 +99,11 @@ if args.arr_contains("-m")? {
       message = args[target_index + 1]
     } else {
       eprintln("error: '-m' requires a message argument after it")
-      exit(2)
+      exit(3)
     }
   } else {
     eprintln("error: missing message after '-m'")
-    exit(2)
+    exit(3)
   }
 }
 
@@ -117,11 +117,11 @@ if args.arr_contains("-M")? {
       finish_message = args[target_index + 1]
     } else {
       eprintln("error: '-M' requires a finish message argument after it")
-      exit(2)
+      exit(3)
     }
   } else {
     eprintln("error: missing finish message after '-M'")
-    exit(2)
+    exit(3)
   }
 }
 
