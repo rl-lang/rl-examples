@@ -1,8 +1,7 @@
 get term_flush from std::term
-get sleep from std::process
+get sleep, args, exit, pid, exec, exec_background, wait_pid, process_running from std::process
 get print, eprintln from std::io
-get format, starts_with from std::str
-get args, exit from std::process
+get format, starts_with, trim from std::str
 get arr_reverse, arr_contains, arr_last, arr_index_of, len from std::array
 get to_int from std::types
 get result_unwrap, is_err from std::res
@@ -19,6 +18,8 @@ dec bool color_random = false
 dec string frame_color = ""
 dec string msg_color = ""
 dec string finish_color = ""
+dec string exec_cmd = ""
+dec bool show_output = false
 dec arr[string] rainbow = ["31", "32", "33", "34", "35", "36"]
 
 // --- basic set of animations
@@ -47,6 +48,8 @@ if args.arr_contains("-h")? {
   print("  \e[33m-n\e[0m \e[1m<count>\e[0m   run for N cycles, then stop\n")
   print("  \e[33m-m\e[0m \e[1m<text>\e[0m    text to display next to the spinner\n")
   print("  \e[33m-M\e[0m \e[1m<text>\e[0m    text to display after spinner finishes\n")
+  print("  \e[33m-e\e[0m \e[1m<cmd>\e[0m    run command with spinner\n")
+  print("  \e[33m-o\e[0m           show stdout on success (always shown on failure)\n")
   print("  \e[33m-C\e[0m \e[1m[colors]\e[0m color mode (see below)\n")
   print("  \e[33m-h\e[0m           show this help message\n")
   print("\n")
@@ -65,6 +68,8 @@ if args.arr_contains("-h")? {
   print("  spinner -C red -m \"Working...\"\n")
   print("  spinner -C cyan magenta -m \"Building...\" -M \"Build complete\"\n")
   print("  spinner -C random cyan -m \"Compiling...\"\n")
+  print("  spinner -e \"make build\" -C red\n")
+  print("  spinner -e \"cargo test\" -m \"Running tests\" -M \"Tests passed\"\n")
   exit(0)
 }
 
@@ -168,6 +173,25 @@ if args.arr_contains("-M")? {
   }
 }
 
+// --- checking if the option -e
+//     is used correctly or not
+//     runs a command with spinner
+if args.arr_contains("-e")? {
+  dec target_index = args.arr_index_of("-e")?
+  if args[target_index] == args.arr_last()? {
+    eprintln("\e[31merror:\e[0m '-e' requires a command argument after it")
+    exit(3)
+  } else {
+    exec_cmd = args[target_index + 1]
+  }
+}
+
+// --- checking if -o is provided
+//     show stdout on success
+if args.arr_contains("-o")? {
+  show_output = true
+}
+
 // --- checking if the option -C
 //     is used correctly or not
 //     0 args: random color per frame
@@ -265,6 +289,107 @@ match style {
 
 if reversed {
   frames = frames.arr_reverse()?
+}
+
+// --- process wrapper mode (-e)
+//     runs command with spinner
+if exec_cmd != "" {
+  dec string outfile = format("/tmp/spinner_out_{}", pid())
+  dec string wrapped = format("({}) > {} 2>&1", exec_cmd, outfile)
+  dec result[int] pid_result = exec_background(wrapped)
+  if pid_result.is_err() {
+    eprintln(format("\e[31merror:\e[0m failed to start command: {}", exec_cmd))
+    exit(1)
+  }
+  dec int bg_pid = pid_result.result_unwrap()
+  print("\e[?25l")
+  dec int ci = 0
+  while process_running(bg_pid) {
+    for frame in frames {
+      dec string fc = frame_color
+      if color_random {
+        fc = rainbow[mod(ci, rainbow.len()?)?]
+        ci += 1
+      }
+      if fc != "" {
+        print(format("\r\e[{}m{}\e[0m", fc, frame))
+      } else {
+        print(format("\r{}", frame))
+      }
+      if message != "" {
+        if msg_color != "" {
+          print(format(" \e[{}m{}\e[0m", msg_color, message))
+        } else {
+          print(format(" {}", message))
+        }
+      }
+      term_flush()?
+      sleep(100)
+    }
+  }
+  dec result[int] exit_result = wait_pid(bg_pid)
+  dec int exit_code = 0
+  if !exit_result.is_err() {
+    exit_code = exit_result.result_unwrap()
+  }
+  print("\e[?25h")
+  print("\e[2K\r")
+  dec string end_color = finish_color
+  if end_color == "" {
+    end_color = msg_color
+  }
+  if exit_code == 0 {
+    if end_color != "" {
+      print(format("\e[{}m✓\e[0m", end_color))
+    } else {
+      print("\e[32m✓\e[0m")
+    }
+    if finish_message != "" {
+      if end_color != "" {
+        print(format(" \e[{}m{}\e[0m\n", end_color, finish_message))
+      } else {
+        print(format(" {}\n", finish_message))
+      }
+    } else {
+      print(" Done\n")
+    }
+    // show captured output on success
+    if show_output {
+      dec result[string] output = exec(format("cat {}", outfile))
+      if !output.is_err() {
+        dec string out_text = output.result_unwrap().trim()
+        if out_text != "" {
+          print(format("{}\n", out_text))
+        }
+      }
+    }
+  } else {
+    if end_color != "" {
+      print(format("\e[31m✗\e[0m", end_color))
+    } else {
+      print("\e[31m✗\e[0m")
+    }
+    if finish_message != "" {
+      if end_color != "" {
+        print(format(" \e[{}m{}\e[0m", end_color, finish_message))
+      } else {
+        print(format(" {}", finish_message))
+      }
+    } else {
+      print(" Failed")
+    }
+    print(format(" (exit code {})\n", exit_code))
+    // show captured output on failure
+    dec result[string] output = exec(format("cat {}", outfile))
+    if !output.is_err() {
+      dec string out_text = output.result_unwrap().trim()
+      if out_text != "" {
+        print(format("\n{}\n", out_text))
+      }
+    }
+  }
+  exec(format("rm -f {}", outfile))
+  exit(exit_code)
 }
 
 // --- infinitly print the array
