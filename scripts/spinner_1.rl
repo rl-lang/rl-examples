@@ -18,6 +18,7 @@ dec string finish_message = ""
 dec bool color_random = false
 dec string frame_color = ""
 dec string msg_color = ""
+dec string finish_color = ""
 dec arr[string] rainbow = ["31", "32", "33", "34", "35", "36"]
 
 // --- basic set of animations
@@ -53,6 +54,7 @@ if args.arr_contains("-h")? {
   print("  \e[33m-C\e[0m              random color per frame\n")
   print("  \e[33m-C\e[0m \e[1m<color>\e[0m      single color for frames\n")
   print("  \e[33m-C\e[0m \e[1m<f> <m>\e[0m      color for frames and messages\n")
+  print("  \e[33m-C\e[0m \e[1m<f> <m> <fm>\e[0m  frames, messages, and finish colors\n")
   print("  \e[33m-C\e[0m \e[1mrandom <m>\e[0m  random frames with colored messages\n")
   print("\n")
   print("\e[36mcolors:\e[0m random | black red green yellow blue magenta cyan white\n")
@@ -173,16 +175,16 @@ if args.arr_contains("-M")? {
 //     2 args: color for frames and messages
 if args.arr_contains("-C")? {
   dec target_index = args.arr_index_of("-C")?
-  // -C is last arg → random mode
+  // -C is last arg -> random mode
   if args[target_index] == args.arr_last()? {
     color_random = true
   } else {
     dec string first = args[target_index + 1]
-    // next arg is a flag → random mode
+    // next arg is a flag -> random mode
     if first.starts_with("-") {
       color_random = true
     } else if target_index + 2 >= args.len()? or args[target_index + 2].starts_with("-") {
-      // only 1 arg after -C → frame color only
+      // only 1 arg after -C -> frame color only
       match first {
         "random" => { color_random = true }
         "black" => { frame_color = "30" }
@@ -199,7 +201,7 @@ if args.arr_contains("-C")? {
         }
       }
     } else {
-      // 2 args after -C → frame + message color
+      // 2 args after -C -> frame + message color
       dec string second = args[target_index + 2]
       match first {
         "random" => { color_random = true }
@@ -228,6 +230,24 @@ if args.arr_contains("-C")? {
         _ => {
           eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for messages\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", second))
           exit(4)
+        }
+      }
+      // check for optional 3rd arg -> finish message color
+      if target_index + 3 < args.len()? and !args[target_index + 3].starts_with("-") {
+        dec string third = args[target_index + 3]
+        match third {
+          "black" => { finish_color = "30" }
+          "red" => { finish_color = "31" }
+          "green" => { finish_color = "32" }
+          "yellow" => { finish_color = "33" }
+          "blue" => { finish_color = "34" }
+          "magenta" => { finish_color = "35" }
+          "cyan" => { finish_color = "36" }
+          "white" => { finish_color = "37" }
+          _ => {
+            eprintln(format("\e[31merror:\e[0m '{}' is not a valid color for finish message\n  valid colors: black | red | green | yellow | blue | magenta | cyan | white", third))
+            exit(4)
+          }
         }
       }
     }
@@ -279,8 +299,12 @@ if count != -1 {
   }
   print("\e[?25h")
   print("\e[2K\r")
-  if msg_color != "" and finish_message != "" {
-    print(format("\e[{}m{}\e[0m\n", msg_color, finish_message))
+  dec string end_color = finish_color
+  if end_color == "" {
+    end_color = msg_color
+  }
+  if end_color != "" and finish_message != "" {
+    print(format("\e[{}m{}\e[0m\n", end_color, finish_message))
   } else if finish_message != "" {
     print(format("{}\n", finish_message))
   } else {
