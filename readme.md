@@ -14,19 +14,9 @@ Why is it useful?
 
 ## Scripts
 
-### spinner
-
-```bash
-rl run scripts/spinner_1.rl [options]
-```
-
-| Flag | Description |
-|------|-------------|
-| `-s <style>` | Animation style: `dots`, `wave`, `pulse`, `fill`, `bounce`, `heavy` |
-| `-r` | Reverse the animation |
-| `-n <count>` | Run for N cycles, then stop |
-| `-m <message>` | Text to display next to the spinner |
-| `-M <message>` | Text to display after spinner finishes |
+### Spinner v1
+Feature-rich terminal spinner with process wrapper, colors, and live output.
+[Documentation](scripts/spinner_1.md)
 
 ## Exit Code Standard
 
