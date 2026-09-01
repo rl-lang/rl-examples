@@ -29,6 +29,14 @@ dec pulse = ["⣀", "⣤", "⣶", "⣾", "⣿", "⣶", "⣤", "⣀"]
 dec fill = ["⠀", "⡀", "⣀", "⣄", "⣤", "⣦", "⣴", "⣼", "⣶", "⣾", "⣿"]
 dec bounce = ["⠁", "⠈", "⠐", "⠠", "⡀", "⢀", "⠠", "⠐", "⠈"]
 dec heavy = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
+dec line = ["-", "\\", "|", "/"]
+dec arc = ["◜", "◠", "◝", "◞", "◡", "◟"]
+dec dots2 = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]
+dec marks = [" ", "▹", "▸", "▹", " "]
+dec star = ["✶", "✳", "✴", "✳"]
+dec toggle = ["□", "■"]
+dec bounce2 = ["⠁", "⠂", "⠄", "⡀", "⢀", "⠠", "⠐", "⠈"]
+dec clock = ["🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"]
 
 dec args = args()
 
@@ -43,7 +51,7 @@ if args.arr_contains("-h")? {
   print("\e[36musage:\e[0m spinner [options]\n")
   print("\n")
   print("\e[36moptions:\e[0m\n")
-  print("  \e[33m-s\e[0m \e[1m<style>\e[0m   animation style (dots | wave | pulse | fill | bounce | heavy)\n")
+  print("  \e[33m-s\e[0m \e[1m<style>\e[0m   animation style (see below)\n")
   print("  \e[33m-r\e[0m           reverse the animation\n")
   print("  \e[33m-n\e[0m \e[1m<count>\e[0m   run for N cycles, then stop\n")
   print("  \e[33m-m\e[0m \e[1m<text>\e[0m    text to display next to the spinner\n")
@@ -61,6 +69,10 @@ if args.arr_contains("-h")? {
   print("  \e[33m-C\e[0m \e[1mrandom <m>\e[0m  random frames with colored messages\n")
   print("\n")
   print("\e[36mcolors:\e[0m random | black red green yellow blue magenta cyan white\n")
+  print("\n")
+  print("\e[36mstyles:\e[0m\n")
+  print("  \e[33mdots\e[0m \e[33mwave\e[0m \e[33mpulse\e[0m \e[33mfill\e[0m \e[33mbounce\e[0m \e[33mheavy\e[0m    braille patterns\n")
+  print("  \e[33mline\e[0m \e[33marc\e[0m \e[33mdots2\e[0m \e[33mmarks\e[0m \e[33mstar\e[0m \e[33mtoggle\e[0m \e[33mbounce2\e[0m \e[33mclock\e[0m\n")
   print("\n")
   print("\e[36mexamples:\e[0m\n")
   print("  spinner -s wave -m \"Loading...\"\n")
@@ -93,17 +105,25 @@ if args.arr_contains("-s")? {
         "fill" => { style = 3 }
         "bounce" => { style = 4 }
         "heavy" => { style = 5 }
+        "line" => { style = 6 }
+        "arc" => { style = 7 }
+        "dots2" => { style = 8 }
+        "marks" => { style = 9 }
+        "star" => { style = 10 }
+        "toggle" => { style = 11 }
+        "bounce2" => { style = 12 }
+        "clock" => { style = 13 }
         _ => {
-          eprintln(format("\e[31merror:\e[0m '{}' is not a valid style\n  valid styles: dots | wave | pulse | fill | bounce | heavy", args[target_index + 1]))
+          eprintln("\e[31merror:\e[0m '{}' is not a valid style\n  valid styles: dots wave pulse fill bounce heavy\n               line arc dots2 marks star toggle bounce2 clock")
           exit(4)
         }
       }
     } else {
-      eprintln("\e[31merror:\e[0m '-s' requires a style argument\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
+      eprintln("\e[31merror:\e[0m '-s' requires a style argument\n  valid styles: dots wave pulse fill bounce heavy\n               line arc dots2 marks star toggle bounce2 clock")
       exit(3)
     }
   } else {
-    eprintln("\e[31merror:\e[0m missing style after '-s'\n  valid styles: dots | wave | pulse | fill | bounce | heavy")
+    eprintln("\e[31merror:\e[0m missing style after '-s'\n  valid styles: dots wave pulse fill bounce heavy\n               line arc dots2 marks star toggle bounce2 clock")
     exit(3)
   }
 }
@@ -285,6 +305,14 @@ match style {
   3 => { frames = fill }
   4 => { frames = bounce }
   5 => { frames = heavy }
+  6 => { frames = line }
+  7 => { frames = arc }
+  8 => { frames = dots2 }
+  9 => { frames = marks }
+  10 => { frames = star }
+  11 => { frames = toggle }
+  12 => { frames = bounce2 }
+  13 => { frames = clock }
 }
 
 if reversed {
