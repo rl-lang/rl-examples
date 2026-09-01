@@ -1,7 +1,7 @@
 // spinner - © Mohamed Gonem
 
 get term_flush from std::term
-get sleep, args, exit, pid, exec, exec_background, wait_pid, process_running, term_pid from std::process
+get sleep, args, exit, pid, exec, exec_background, wait_pid, process_running, term_pid, os_name from std::process
 get print, eprintln, isatty from std::io
 get format, starts_with, trim, split from std::str
 get arr_reverse, arr_contains, arr_last, arr_index_of, len from std::array
@@ -384,6 +384,10 @@ if args.arr_contains("--json")? {
 // --- checking if --notify is provided
 //     desktop notification on completion
 if args.arr_contains("--notify")? {
+  if os_name() != "linux" {
+    eprintln("\e[31merror:\e[0m --notify is only supported on Linux")
+    exit(2)
+  }
   notify = true
 }
 
