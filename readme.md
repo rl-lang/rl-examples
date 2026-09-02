@@ -18,6 +18,10 @@ Why is it useful?
 Feature-rich terminal spinner with process wrapper, colors, and live output.
 [Documentation](scripts/spinner_1.md)
 
+### Spinner v2 (العربية)
+Arabic version of the spinner with Arabic keywords, variables, and UI.
+[Documentation](scripts/spinner_1.md)
+
 ## Exit Code Standard
 
 All scripts in this repository follow a consistent exit code convention:
