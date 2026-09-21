@@ -1,0 +1,7 @@
+[project]
+name = "notes"
+rl-version = "2.2.0"
+version = "0.0.1"
+entry = "src/main.rl"
+
+[dependencies]
