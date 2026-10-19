@@ -1,0 +1,1 @@
+optdigits: "Optical Recognition of Handwritten Digits" by E. Alpaydin & C. Kaynak, UCI Machine Learning Repository, 1998 (DOI 10.24432/C50P49). Licensed CC BY 4.0. Files unmodified from the UCI distribution.
